@@ -1,15 +1,32 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', type: '', message: '' });
+  const [emailError, setEmailError] = useState('');
 
   const scrollToSection = (section: string) => {
     setActiveSection(section);
     const element = document.getElementById(section);
     element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const validateEmail = (email: string) => {
+    return email.includes('@');
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!validateEmail(formData.email)) {
+      setEmailError('Email должен содержать символ @');
+      return;
+    }
+    setEmailError('');
+    alert('Спасибо! Мы свяжемся с вами в ближайшее время.');
+    setFormData({ name: '', email: '', phone: '', type: '', message: '' });
   };
 
   return (
@@ -18,7 +35,7 @@ const Index = () => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold tracking-wider">ЭЛИТ</h1>
           <div className="hidden md:flex gap-8">
-            {['Главная', 'Мероприятия', 'Вечеринки', 'Туры', 'О компании', 'Контакты'].map((item) => (
+            {['Главная', 'Мероприятия', 'Вечеринки', 'Туры', 'Портфолио', 'О компании', 'Контакты'].map((item) => (
               <button
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase().replace(' ', '-'))}
@@ -155,6 +172,35 @@ const Index = () => {
         </div>
       </section>
 
+      <section id="портфолио" className="py-24 px-6">
+        <div className="container mx-auto">
+          <div className="text-center mb-16 animate-fade-in">
+            <h3 className="text-5xl md:text-6xl font-light mb-4">Портфолио</h3>
+            <p className="text-muted-foreground text-lg">Наши реализованные проекты</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { src: 'https://cdn.poehali.dev/projects/37e37c3b-14d3-4bda-9bde-f55163b5ea07/files/166bf68f-dce7-4b4b-8936-5605c226ff3f.jpg', title: 'Корпоративный гала-ужин' },
+              { src: 'https://cdn.poehali.dev/projects/37e37c3b-14d3-4bda-9bde-f55163b5ea07/files/e16f1d56-b927-4f01-8e1a-1c0ff3bf46a6.jpg', title: 'Премиум вечеринка' },
+              { src: 'https://cdn.poehali.dev/projects/37e37c3b-14d3-4bda-9bde-f55163b5ea07/files/65b0475f-475c-4952-a79f-94afdae5dfa8.jpg', title: 'Элитное торжество' },
+              { src: 'https://cdn.poehali.dev/projects/37e37c3b-14d3-4bda-9bde-f55163b5ea07/files/0c715a2e-1bad-4fd5-b408-02447a6ae0ee.jpg', title: 'VIP яхт-вечеринка' },
+              { src: 'https://cdn.poehali.dev/projects/37e37c3b-14d3-4bda-9bde-f55163b5ea07/files/36191bb3-cde1-439c-b165-100f5c0ad677.jpg', title: 'Горнолыжный тур' }
+            ].map((item, idx) => (
+              <div key={idx} className="relative group overflow-hidden rounded-lg animate-scale-in" style={{ animationDelay: `${idx * 0.1}s` }}>
+                <img 
+                  src={item.src}
+                  alt={item.title}
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                  <p className="text-xl font-semibold p-6">{item.title}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="о-компании" className="py-24 px-6 bg-secondary/20">
         <div className="container mx-auto max-w-4xl text-center">
           <div className="animate-fade-in">
@@ -188,26 +234,49 @@ const Index = () => {
           </div>
           <Card className="bg-card border-border animate-scale-in">
             <CardContent className="p-8">
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm mb-2">Имя</label>
                   <input 
                     type="text" 
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
                     className="w-full bg-background border border-border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Ваше имя"
+                    required
                   />
+                </div>
+                <div>
+                  <label className="block text-sm mb-2">Email</label>
+                  <input 
+                    type="text" 
+                    value={formData.email}
+                    onChange={(e) => { setFormData({...formData, email: e.target.value}); setEmailError(''); }}
+                    className="w-full bg-background border border-border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="example@mail.ru"
+                    required
+                  />
+                  {emailError && <p className="text-destructive text-sm mt-1">{emailError}</p>}
                 </div>
                 <div>
                   <label className="block text-sm mb-2">Телефон</label>
                   <input 
                     type="tel" 
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     className="w-full bg-background border border-border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="+7 (___) ___-__-__"
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm mb-2">Тип мероприятия</label>
-                  <select className="w-full bg-background border border-border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary">
+                  <select 
+                    value={formData.type}
+                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                    className="w-full bg-background border border-border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                    required
+                  >
                     <option>Выберите тип</option>
                     <option>Корпоративное мероприятие</option>
                     <option>Частная вечеринка</option>
@@ -218,22 +287,25 @@ const Index = () => {
                 <div>
                   <label className="block text-sm mb-2">Сообщение</label>
                   <textarea 
+                    value={formData.message}
+                    onChange={(e) => setFormData({...formData, message: e.target.value})}
                     className="w-full bg-background border border-border rounded-md px-4 py-3 h-32 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     placeholder="Расскажите о вашем мероприятии"
+                    required
                   ></textarea>
                 </div>
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 text-lg">
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-6 text-lg">
                   Отправить заявку
                 </Button>
               </form>
               <div className="mt-8 pt-8 border-t border-border space-y-3 text-center">
                 <div className="flex items-center justify-center gap-2">
                   <Icon name="Phone" size={20} className="text-primary" />
-                  <span>+7 (495) 123-45-67</span>
+                  <a href="tel:+74951234567" className="hover:text-primary transition-colors">+7 (495) 123-45-67</a>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <Icon name="Mail" size={20} className="text-primary" />
-                  <span>info@elite-events.ru</span>
+                  <a href="mailto:info@elite-events.ru" className="hover:text-primary transition-colors">info@elite-events.ru</a>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <Icon name="MapPin" size={20} className="text-primary" />
@@ -250,11 +322,28 @@ const Index = () => {
           <h2 className="text-3xl font-bold mb-4 tracking-wider">ЭЛИТ</h2>
           <p className="text-muted-foreground mb-6">Организация VIP-мероприятий и туризма по России</p>
           <div className="flex gap-6 justify-center mb-6">
-            {['Instagram', 'Facebook', 'Linkedin'].map((social) => (
-              <button key={social} className="hover:text-primary transition-colors">
-                {social}
-              </button>
-            ))}
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
+              <Icon name="Instagram" size={20} />
+              <span>Instagram</span>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
+              <Icon name="Facebook" size={20} />
+              <span>Facebook</span>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2">
+              <Icon name="Linkedin" size={20} />
+              <span>Linkedin</span>
+            </a>
+          </div>
+          <div className="space-y-2 mb-6">
+            <div className="flex items-center justify-center gap-2">
+              <Icon name="Phone" size={16} className="text-primary" />
+              <a href="tel:+74951234567" className="hover:text-primary transition-colors">+7 (495) 123-45-67</a>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Icon name="Mail" size={16} className="text-primary" />
+              <a href="mailto:info@elite-events.ru" className="hover:text-primary transition-colors">info@elite-events.ru</a>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">© 2024 ЭЛИТ. Все права защищены.</p>
         </div>
